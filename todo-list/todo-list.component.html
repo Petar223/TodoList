@@ -1,0 +1,55 @@
+<div class="todo-list-container" *ngIf="(todos$ | async) as todos">
+  <div class="todo-list-header">
+    <h2>List</h2>
+    <button class="todo-add-btn-side" mat-flat-button color="accent"
+            [routerLink]="['/edit/new']">
+      <mat-icon>add</mat-icon>
+      NEW TODO
+    </button>
+  </div>
+  <div *ngIf="todos.length !== 0">
+    <mat-form-field appearance="outline">
+      <mat-label>Status</mat-label>
+      <mat-select [(value)]="selectedFilter"
+                  (selectionChange)="setFilter($event.value)">
+        <mat-option *ngFor="let option of filterOptions" [value]="option">
+          {{option}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div *ngFor="let todo of todos$ | async" class="todo-list-item">
+    <mat-card *ngIf="selectedFilter === 'All' ||
+               (selectedFilter === 'Done' && todo.status) ||
+               (selectedFilter === 'Undone' && !todo.status)">
+      <mat-card-header>
+        <mat-card-title>{{todo.title}}</mat-card-title>
+        <mat-card-subtitle>
+          {{todo.description}}
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-actions align="end">
+        <span *ngIf="todo.status">Completed</span>
+        <mat-icon *ngIf="todo.status">
+          task_alt
+        </mat-icon>
+        <button color="primary"
+                [routerLink]="['/edit/' + todo.id]"
+                [disabled]="todo.status" mat-button>EDIT</button>
+        <button *ngIf="!todo.status"
+                (click)="toggleStatus(todo.id)"
+                mat-button>DONE</button>
+        <button *ngIf="todo.status"
+                mat-button
+                (click)="toggleStatus(todo.id)">UNDONE</button>
+        <button color="warn"
+                mat-button
+                (click)="deleteTodo(todo.id)">DELETE</button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+  <div *ngIf="todos.length === 0" class="todo-empty-state">
+    <h2>You have no todos.</h2>
+  </div>
+</div>
+
